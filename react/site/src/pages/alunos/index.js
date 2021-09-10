@@ -4,8 +4,74 @@ import Menu from '../../components/menu'
 
 import { Container, Conteudo } from './styled'
 
+import { useState, useEffect } from 'react';
+
+import Api from '../../service/api';
+const api =new Api();
+
 
 export default function Index() {
+
+        const [alunos, setAlunos] = useState([]);
+        const [nome, setNome] = useState('');
+        const [chamada, setChamada] = useState('');
+        const [turma, setTurma] = useState('');
+        const [curso, setCurso] = useState('');
+        const [idAlterado, setIdAlterado] = useState(0);
+
+
+        async function listar() {
+            let r = await api.listar();
+            setAlunos(r);
+        }
+
+        async function inserir() {
+
+            if (idAlterado == 0) {
+                let r = await api.alterar(nome, chamada, curso, turma);
+
+                if (r.erro)
+                    alert(r.erro);
+                else
+                    alert('Aluno Alterado!');
+            } else {
+                let r = await api.alterar(idAlterado, nome, chamada, curso, turma);
+
+                if (r.erro)
+                    alert(r.erro);
+                else
+                    alert('Aluno Alterado!');
+            }
+            
+            limparCampos();
+            listar();
+        }
+
+        function limparCampos() {
+            setNome('');
+            setChamada('');
+            setCurso('');
+            setTurma('');
+            setIdAlterado(0);
+        }
+
+        async function remover(id) {
+            let r = await api.remover(id);
+            alert('Aluno removido!');
+
+            listar();
+        }
+    
+        async function editar(item) {
+            setNome(item.nm_aluno);
+            setChamada(item.nr_chamada);
+            setCurso(item.nm_curso);
+            setTurma(item.nm_turma);
+            setIdAlterado(item.id_matricula);
+        }    
+
+        useEffect(() =>)
+
     return (
         <Container>
             <Menu />
