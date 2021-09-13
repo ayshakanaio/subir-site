@@ -136,27 +136,28 @@ export default function Index() {
                             <tbody>
                                 {alunos.map((item, i) =>
 
-                                <tr className= {i % 2 == 0 ? "linha-alterada" : ""}>    
+                                <tr className= {i % 2 == 0 ? "linha-alterada" : "" }>    
                                     <td> {item.id_matricula} </td>
                                     <td> 
                                         {item.nm_aluno != null && item.nm_aluno.length >= 25
                                         ? item.nm_aluno.substr(0, 25) + '...'
-                                        : item.nm_aluno} 
+                                        : item.nm_aluno
+                                          
+
+                                          } 
                                     </td>
                                     <td> {item.nr_chamada} </td>
                                     <td> {item.nm_curso} </td>
                                     <td> {item.nm_turma} </td>
                                     <td> {item.id_matricula} </td>
-                                    <td> <button onClick={() => editar(item)} > <img src= "/assests/images/edit.svg" alt ="" /> </button> </td>
-                                    <td> <button onClick={() => remover(item)} > <img src= "/assests/images/trash.svg" alt ="" /> </button> </td>
+                                    <td> <button onClick={() => editar(item)} > <img src= "/assets/images/Grup 1.png" alt ="" /> </button> </td>
+                                    <td> <button onClick={() => remover(item)} > <img src= "/assets/images/Grup 2(1).png" alt ="" /> </button> </td>
                                 </tr>
                                
 
                             )}
+                            </tbody>
 
-                           
-                                
-                            </tbody> 
                         </table>
                     </div>
                 </div>
