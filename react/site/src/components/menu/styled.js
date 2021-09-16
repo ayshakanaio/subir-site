@@ -6,7 +6,7 @@ const Container = styled.div`
     
     background-color: #2B3031;
     
-    height: 100vh;
+    mheight: 100vh;
     padding-bottom: 0em;
 
     position: sticky;

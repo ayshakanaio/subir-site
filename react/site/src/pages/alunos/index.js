@@ -4,9 +4,17 @@ import Menu from '../../components/menu'
 
 import { Container, Conteudo } from './styled'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-import Api from '../../service/api';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+
+import LoadingBar from 'react-top-loading-bar';
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import Api from '../../service/api'
 const api = new Api();
 
 
@@ -17,58 +25,92 @@ export default function Index() {
         const [chamada, setChamada] = useState('');
         const [turma, setTurma] = useState('');
         const [curso, setCurso] = useState('');
-        const [idAlterado, setIdAlterado] = useState(1);
-
+        const [idAlterando, setIdAlterando] = useState(0);
+        let loading = useRef(null);
 
         async function listar() {
+            
+            loading.current.continuousStart();
             let r = await api.listar();
             console.log(r);
             setAlunos(r);
+            loading.current.complete();
         }
 
-        async function inserir() {
+        const App = () => {
+            const ref = useRef(null)
+        }
 
-            if (idAlterado == 0) {
-                let r = await api.alterar(nome, chamada, curso, turma);
+        async function inserirAluno() {
+            loading.current.continuousStart();
+
+            if (idAlterando === 0) {
+                let r = await api.inserir(nome, chamada, curso, turma);
 
                 if (r.erro)
-                    alert(r.erro);
+                    toast.error(r.erro);
                 else
-                    alert('Aluno Alterado!');
+                    toast.dark('Aluno Inserido!');
             } else {
-                let r = await api.alterar(idAlterado, nome, chamada, curso, turma);
-
+                let r = await api.alterar(idAlterando, nome, chamada, curso, turma);
+                console.log(r);
                 if (r.erro)
-                    alert(r.erro);
+                    toast.error(r.erro);
                 else
-                    alert('Aluno Alterado!');
+                    toast.error('Aluno Alterado!');   
             }
             
             limparCampos();
             listar();
         }
 
+
         function limparCampos() {
             setNome('');
             setChamada('');
             setCurso('');
             setTurma('');
-            setIdAlterado(0);
-        }
-
-        async function remover(id) {
-            let r = await api.remover(id);
-            alert('Aluno removido!');
-
-            listar();
+            setIdAlterando(0);
         }
     
+
+        async function remover(id) {
+            loading.current.continuousStart();
+    
+            confirmAlert({
+                title: 'Confirm to submit',
+                message: `Tem certeza que quer remover o aluno ${id} ?`,
+                buttons: [
+                    {
+                        label: 'Sim',
+                        onClick: async() => {
+                            let r = await api.remover(id);
+                            if(r.erro){
+                                toast.error(`${r.erro}`);
+                            } else {
+                                toast.dark('Aluno removido')
+                                listar();
+                            }
+                        }
+                    },
+                    {
+                        label: 'Não'
+                    }
+                ]
+            })
+    
+            listar();
+            loading.current.complete();
+        }
+
+       
+
         async function editar(item) {
             setNome(item.nm_aluno);
             setChamada(item.nr_chamada);
             setCurso(item.nm_curso);
             setTurma(item.nm_turma);
-            setIdAlterado(item.id_matricula);
+            setIdAlterando(item.id_matricula);
         }    
 
         useEffect(() => {
@@ -76,17 +118,18 @@ export default function Index() {
         }, [])
 
     return (
-        <Container>
+     <Container>
+       <ToastContainer />
+         <LoadingBar color='#f11946' ref={loading} />
             <Menu />
-            <Conteudo>
-                <Cabecalho />
+              <Conteudo>
                 <div class="body-right-box">
                     <div class="new-student-box">
                         
                         <div class="text-new-student">
                             <div class="bar-new-student"></div>
-                            <div class="text-new-student"> { idAlterado == 0 ? "Novo Aluno" : "Alterando Aluno" + idAlterado } </div>
-                        </div>
+                            <div class="text-new-student"> { idAlterando === 0 ? "Novo Aluno" : "Alterando Aluno" + idAlterando } </div>
+                         </div>
 
                         <div class="input-new-student"> 
                             <div class="input-left">
@@ -110,7 +153,7 @@ export default function Index() {
                                     <div class="input"> <input type="text" value={turma} onChange={e => setTurma(e.target.value)} /> </div>  
                                 </div>
                             </div>
-                            <div class="button-create"> <button onClick ={inserir}> {idAlterado == 0 ? "Cadastrar" : "Alterar"} </button> </div>
+                            <div class="button-create"> <button onClick={inserirAluno}> {idAlterando === 0 ? "Cadastrar" : "Alterar"} </button> </div>
                         </div>
                     </div>
 
@@ -120,6 +163,7 @@ export default function Index() {
                             <div class="text-registered-student"> Alunos Matriculados </div>
                         </div>
                     
+
                         <table class ="table-user">
                             <thead>
                                 <tr>
@@ -134,28 +178,23 @@ export default function Index() {
                             </thead>
                     
                             <tbody>
-                                {alunos.map((item, i) =>
-
-                                <tr className= {i % 2 == 0 ? "linha-alterada" : "" }>    
-                                    <td> {item.id_matricula} </td>
-                                    <td> 
+                                {alunos.map((item, i) =>        
+                                <tr className={i % 2 == 0 ? "linha-alternada" : ""}>
+                                        <td> {item.id_matricula} </td>
+                                        <td title={item.nm_aluno}> 
                                         {item.nm_aluno != null && item.nm_aluno.length >= 25
                                         ? item.nm_aluno.substr(0, 25) + '...'
-                                        : item.nm_aluno
-                                          
-
-                                          } 
-                                    </td>
+                                        : item.nm_aluno} 
+                                        </td>
                                     <td> {item.nr_chamada} </td>
-                                    <td> {item.nm_curso} </td>
                                     <td> {item.nm_turma} </td>
-                                    <td> {item.id_matricula} </td>
-                                    <td> <button onClick={() => editar(item)} > <img src= "/assets/images/Grup 1.png" alt ="" /> </button> </td>
-                                    <td> <button onClick={() => remover(item)} > <img src= "/assets/images/Grup 2(1).png" alt ="" /> </button> </td>
+                                    <td> {item.nm_curso} </td>
+                                    <td className="coluna-acao"> <button onClick={() => editar(item)} > <img src= "/assets/images/Editar.svg" alt ="" /> </button> </td>
+                                    <td className="coluna-acao"> <button onClick={() => remover(item.id_matricula)} > <img src= "/assets/images/trash-2.svg" alt ="" /> </button> </td>
                                 </tr>
-                               
 
                             )}
+                            
                             </tbody>
 
                         </table>
@@ -165,3 +204,4 @@ export default function Index() {
         </Container>
     )
 }
+     
