@@ -78,7 +78,7 @@ export default function Index() {
             loading.current.continuousStart();
     
             confirmAlert({
-                title: 'Confirm to submit',
+                title: 'Remover Aluno',
                 message: `Tem certeza que quer remover o aluno ${id} ?`,
                 buttons: [
                     {
@@ -103,7 +103,6 @@ export default function Index() {
             loading.current.complete();
         }
 
-       
 
         async function editar(item) {
             setNome(item.nm_aluno);
@@ -118,11 +117,13 @@ export default function Index() {
         }, [])
 
     return (
-     <Container>
-       <ToastContainer />
-         <LoadingBar color='#f11946' ref={loading} />
-            <Menu />
-              <Conteudo>
+        <Container>
+          <ToastContainer />
+          <LoadingBar color='#f11946' ref={loading} />
+        
+          <Menu/>    
+            <Conteudo>
+              <Cabecalho /> 
                 <div class="body-right-box">
                     <div class="new-student-box">
                         
@@ -176,10 +177,10 @@ export default function Index() {
                                     <th class="coluna-acao"> </th>
                                 </tr>
                             </thead>
-                    
+                                    
                             <tbody>
                                 {alunos.map((item, i) =>        
-                                <tr className={i % 2 == 0 ? "linha-alternada" : ""}>
+                                <tr className={i % 2 === 0 ? "linha-alternada" : ""}>
                                         <td> {item.id_matricula} </td>
                                         <td title={item.nm_aluno}> 
                                         {item.nm_aluno != null && item.nm_aluno.length >= 25
@@ -187,8 +188,8 @@ export default function Index() {
                                         : item.nm_aluno} 
                                         </td>
                                     <td> {item.nr_chamada} </td>
-                                    <td> {item.nm_turma} </td>
                                     <td> {item.nm_curso} </td>
+                                    <td> {item.nm_turma} </td>
                                     <td className="coluna-acao"> <button onClick={() => editar(item)} > <img src= "/assets/images/Editar.svg" alt ="" /> </button> </td>
                                     <td className="coluna-acao"> <button onClick={() => remover(item.id_matricula)} > <img src= "/assets/images/trash-2.svg" alt ="" /> </button> </td>
                                 </tr>
